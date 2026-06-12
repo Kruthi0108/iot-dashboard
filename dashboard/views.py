@@ -3,17 +3,15 @@ from django.shortcuts import (
     redirect
 )
 
-from django.http import HttpResponse
+from django.http import (
+    HttpResponse
+)
 
 from django.contrib.auth import (
     authenticate,
     login,
     logout,
     get_user_model
-)
-
-from django.contrib.auth.decorators import (
-    login_required
 )
 
 from .models import SensorData
@@ -24,16 +22,15 @@ import csv
 
 def login_page(request):
 
-    # auto-create admin user if not exists
+    # create default admin user
     User = get_user_model()
 
     if not User.objects.filter(
         username='admin'
     ).exists():
 
-        User.objects.create_superuser(
+        User.objects.create_user(
             username='admin',
-            email='admin@gmail.com',
             password='admin123'
         )
 
@@ -60,9 +57,7 @@ def login_page(request):
                 user
             )
 
-            return redirect(
-                'home'
-            )
+            return redirect('/')
 
     return render(
         request,
@@ -75,11 +70,10 @@ def logout_page(request):
     logout(request)
 
     return redirect(
-        'login'
+        '/login/'
     )
 
 
-@login_required
 def home(request):
 
     temperature = random.randint(
@@ -121,19 +115,32 @@ def home(request):
         for item in latest_data
     ][::-1]
 
-    avg_temp = round(
-        sum(temperature_data)
-        / len(temperature_data),
-        2
-    )
-
-    highest_temp = max(
+    if len(
         temperature_data
-    )
+    ) == 0:
 
-    lowest_temp = min(
-        temperature_data
-    )
+        avg_temp = 0
+        highest_temp = 0
+        lowest_temp = 0
+
+    else:
+
+        avg_temp = round(
+            sum(
+                temperature_data
+            ) / len(
+                temperature_data
+            ),
+            2
+        )
+
+        highest_temp = max(
+            temperature_data
+        )
+
+        lowest_temp = min(
+            temperature_data
+        )
 
     if temperature > 35:
 
