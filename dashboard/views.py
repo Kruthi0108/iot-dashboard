@@ -65,7 +65,7 @@ def logout_page(request):
     )
 
 
-# @login_required
+@login_required
 def home(request):
 
     temperature = random.randint(
