@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>
+IoT Dashboard
+</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f7fa;
+margin:0;
+}
+
+.navbar{
+background:#1e293b;
+color:white;
+padding:20px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+}
+
+.container{
+width:90%;
+margin:auto;
+margin-top:30px;
+}
+
+.cards{
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+}
+
+.card{
+background:white;
+padding:25px;
+width:250px;
+border-radius:15px;
+box-shadow:0px 4px 12px rgba(0,0,0,0.15);
+text-align:center;
+}
+
+.value{
+font-size:30px;
+font-weight:bold;
+}
+
+.chart-box{
+background:white;
+padding:30px;
+margin-top:30px;
+border-radius:15px;
+box-shadow:0px 4px 12px rgba(0,0,0,0.15);
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#1e293b;
+color:white;
+}
+
+button{
+padding:10px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+
+📡 Smart IoT Monitoring Dashboard
+
+<div style="margin-top:10px;">
+
+<a href="/logout/">
+<button>
+Logout
+</button>
+</a>
+
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+<h2>🌡 Temperature</h2>
+<div class="value"
+style="color:{{ temp_color }}">
+{{ temperature }}°C
+</div>
+</div>
+
+<div class="card">
+<h2>💧 Humidity</h2>
+<div class="value">
+{{ humidity }}%
+</div>
+</div>
+
+<div class="card">
+<h2>⚡ Device</h2>
+<div class="value">
+{{ device_status }}
+</div>
+</div>
+
+</div>
+
+<div class="cards"
+style="margin-top:20px;">
+
+<div class="card">
+<h2>Average Temp</h2>
+<div class="value">
+{{ avg_temp }}°C
+</div>
+</div>
+
+<div class="card">
+<h2>Highest Temp</h2>
+<div class="value">
+{{ highest_temp }}°C
+</div>
+</div>
+
+<div class="card">
+<h2>Lowest Temp</h2>
+<div class="value">
+{{ lowest_temp }}°C
+</div>
+</div>
+
+</div>
+
+<div class="chart-box">
+
+<h2>
+📈 Temperature Graph
+</h2>
+
+<canvas id="tempChart">
+
+</canvas>
+
+</div>
+
+<div class="chart-box">
+
+<h2>
+💧 Humidity Graph
+</h2>
+
+<canvas id="humidityChart">
+
+</canvas>
+
+</div>
+
+<div class="chart-box">
+
+<h2>
+📋 Sensor History
+</h2>
+
+<table>
+
+<tr>
+<th>Temp</th>
+<th>Humidity</th>
+<th>Status</th>
+<th>Time</th>
+</tr>
+
+{% for sensor in sensor_history %}
+
+<tr>
+<td>
+{{ sensor.temperature }}°C
+</td>
+
+<td>
+{{ sensor.humidity }}%
+</td>
+
+<td>
+{{ sensor.device_status }}
+</td>
+
+<td>
+{{ sensor.created_at }}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+<div style="
+text-align:center;
+margin:30px;
+">
+
+<a href="/export/">
+
+<button>
+
+⬇ Download CSV
+
+</button>
+
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+const tempData =
+{{ temperature_data|safe }};
+
+const humidityData =
+{{ humidity_data|safe }};
+
+new Chart(
+document.getElementById(
+'tempChart'
+),
+{
+type:'line',
+
+data:{
+labels:[
+'1','2','3',
+'4','5','6',
+'7','8','9','10'
+],
+
+datasets:[{
+label:
+'Temperature',
+data:
+tempData
+}]
+}
+}
+);
+
+new Chart(
+document.getElementById(
+'humidityChart'
+),
+{
+type:'bar',
+
+data:{
+labels:[
+'1','2','3',
+'4','5','6',
+'7','8','9','10'
+],
+
+datasets:[{
+label:
+'Humidity',
+data:
+humidityData
+}]
+}
+}
+);
+
+setTimeout(
+function(){
+location.reload();
+},
+5000
+);
+
+</script>
+
+</body>
+</html>
