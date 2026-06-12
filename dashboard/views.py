@@ -8,7 +8,8 @@ from django.http import HttpResponse
 from django.contrib.auth import (
     authenticate,
     login,
-    logout
+    logout,
+    get_user_model
 )
 
 from django.contrib.auth.decorators import (
@@ -22,6 +23,19 @@ import csv
 
 
 def login_page(request):
+
+    # auto-create admin user if not exists
+    User = get_user_model()
+
+    if not User.objects.filter(
+        username='admin'
+    ).exists():
+
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@gmail.com',
+            password='admin123'
+        )
 
     if request.method == 'POST':
 
@@ -65,7 +79,7 @@ def logout_page(request):
     )
 
 
-# @login_required
+@login_required
 def home(request):
 
     temperature = random.randint(
@@ -108,12 +122,8 @@ def home(request):
     ][::-1]
 
     avg_temp = round(
-        sum(
-            temperature_data
-        ) /
-        len(
-            temperature_data
-        ),
+        sum(temperature_data)
+        / len(temperature_data),
         2
     )
 
@@ -128,8 +138,7 @@ def home(request):
     if temperature > 35:
 
         alert = (
-            "⚠ High "
-            "Temperature!"
+            "⚠ High Temperature!"
         )
 
         temp_color = "red"
@@ -137,8 +146,7 @@ def home(request):
     else:
 
         alert = (
-            "✅ Temperature "
-            "Normal"
+            "✅ Temperature Normal"
         )
 
         temp_color = "green"
@@ -196,8 +204,7 @@ def export_csv(request):
         'Content-Disposition'
     ] = (
         'attachment; '
-        'filename='
-        '"sensor_data.csv"'
+        'filename="sensor_data.csv"'
     )
 
     writer = csv.writer(
