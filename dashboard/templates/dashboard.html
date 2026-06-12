@@ -85,6 +85,17 @@ border-radius:8px;
 cursor:pointer;
 }
 
+.alert-box{
+margin-top:20px;
+padding:15px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+border-radius:10px;
+background:white;
+box-shadow:0px 4px 12px rgba(0,0,0,0.15);
+}
+
 </style>
 
 </head>
@@ -113,25 +124,45 @@ Logout
 
 <div class="card">
 <h2>🌡 Temperature</h2>
-<div class="value"
+
+<div
+id="temperature"
+class="value"
 style="color:{{ temp_color }}">
 {{ temperature }}°C
 </div>
+
 </div>
 
 <div class="card">
 <h2>💧 Humidity</h2>
-<div class="value">
+
+<div
+id="humidity"
+class="value">
 {{ humidity }}%
 </div>
+
 </div>
 
 <div class="card">
 <h2>⚡ Device</h2>
-<div class="value">
+
+<div
+id="device-status"
+class="value">
 {{ device_status }}
 </div>
+
 </div>
+
+</div>
+
+<div
+id="alert-box"
+class="alert-box">
+
+{{ alert }}
 
 </div>
 
@@ -167,9 +198,7 @@ style="margin-top:20px;">
 📈 Temperature Graph
 </h2>
 
-<canvas id="tempChart">
-
-</canvas>
+<canvas id="tempChart"></canvas>
 
 </div>
 
@@ -179,9 +208,7 @@ style="margin-top:20px;">
 💧 Humidity Graph
 </h2>
 
-<canvas id="humidityChart">
-
-</canvas>
+<canvas id="humidityChart"></canvas>
 
 </div>
 
@@ -248,12 +275,13 @@ margin:30px;
 
 <script>
 
-const tempData =
+let tempData =
 {{ temperature_data|safe }};
 
-const humidityData =
+let humidityData =
 {{ humidity_data|safe }};
 
+const tempChart =
 new Chart(
 document.getElementById(
 'tempChart'
@@ -269,15 +297,14 @@ labels:[
 ],
 
 datasets:[{
-label:
-'Temperature',
-data:
-tempData
+label:'Temperature',
+data:tempData
 }]
 }
 }
 );
 
+const humidityChart =
 new Chart(
 document.getElementById(
 'humidityChart'
@@ -293,19 +320,87 @@ labels:[
 ],
 
 datasets:[{
-label:
-'Humidity',
-data:
-humidityData
+label:'Humidity',
+data:humidityData
 }]
 }
 }
 );
 
-setTimeout(
-function(){
-location.reload();
-},
+function updateSensorData(){
+
+fetch('/sensor-api/')
+
+.then(response =>
+response.json()
+)
+
+.then(data => {
+
+document.getElementById(
+'temperature'
+).innerText =
+data.temperature + "°C";
+
+document.getElementById(
+'humidity'
+).innerText =
+data.humidity + "%";
+
+document.getElementById(
+'device-status'
+).innerText =
+data.device_status;
+
+if(data.temperature > 35){
+
+document.getElementById(
+'alert-box'
+).innerText =
+"⚠ High Temperature!";
+
+document.getElementById(
+'temperature'
+).style.color =
+"red";
+}
+
+else{
+
+document.getElementById(
+'alert-box'
+).innerText =
+"✅ Temperature Normal";
+
+document.getElementById(
+'temperature'
+).style.color =
+"green";
+}
+
+tempData.push(
+data.temperature
+);
+
+humidityData.push(
+data.humidity
+);
+
+if(tempData.length > 10){
+
+tempData.shift();
+humidityData.shift();
+}
+
+tempChart.update();
+humidityChart.update();
+
+});
+
+}
+
+setInterval(
+updateSensorData,
 5000
 );
 

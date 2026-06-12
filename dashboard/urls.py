@@ -26,4 +26,10 @@ urlpatterns = [
         views.export_csv,
         name='export_csv'
     ),
+
+    path(
+        'sensor-api/',
+        views.sensor_api,
+        name='sensor_api'
+    ),
 ]

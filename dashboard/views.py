@@ -4,7 +4,8 @@ from django.shortcuts import (
 )
 
 from django.http import (
-    HttpResponse
+    HttpResponse,
+    JsonResponse
 )
 
 from django.contrib.auth import (
@@ -22,7 +23,6 @@ import csv
 
 def login_page(request):
 
-    # create default admin user
     User = get_user_model()
 
     if not User.objects.filter(
@@ -57,7 +57,9 @@ def login_page(request):
                 user
             )
 
-            return redirect('/')
+            return redirect(
+                'home'
+            )
 
     return render(
         request,
@@ -70,7 +72,7 @@ def logout_page(request):
     logout(request)
 
     return redirect(
-        '/login/'
+        'login'
     )
 
 
@@ -199,6 +201,42 @@ def home(request):
         'dashboard.html',
         context
     )
+
+
+def sensor_api(request):
+
+    temperature = random.randint(
+        20,
+        40
+    )
+
+    humidity = random.randint(
+        40,
+        90
+    )
+
+    device_status = random.choice([
+        'ON',
+        'OFF'
+    ])
+
+    SensorData.objects.create(
+        temperature=temperature,
+        humidity=humidity,
+        device_status=device_status
+    )
+
+    return JsonResponse({
+
+        'temperature':
+        temperature,
+
+        'humidity':
+        humidity,
+
+        'device_status':
+        device_status
+    })
 
 
 def export_csv(request):
